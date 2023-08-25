@@ -3,17 +3,14 @@ const User = require('../utils/user');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const { response } = require('../utils/helpers');
+const Stripe = require('../stripe/stripe');
 
 exports.signUp = catchAsync(async (req, res) => {
   const { fullName, email, password, passwordConfirm } = req.body;
 
-  const user = await new User(
-    fullName,
-    email,
-    password,
-    passwordConfirm
-  ).signUp();
+  const user = await new User(fullName, email, password, passwordConfirm).signUp();
 
+  const customer = await Stripe.addNewCustomer(email, fullName);
   response('User created', res, 201, user);
 });
 
