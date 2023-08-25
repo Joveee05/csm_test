@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 const path = require('path');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -11,10 +13,13 @@ const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
+const userController = require('./controllers/userController');
 
 const app = express();
 
 app.use(cors());
+
+app.options('*', cors());
 
 // view engine setup
 
@@ -32,8 +37,28 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests. Try again in an hour',
 });
-
 app.use('/api', limiter);
+
+app.use(
+  session({
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 86400000,
+    },
+    store: new MemoryStore({
+      checkPeriod: 86400000,
+    }),
+    resave: false,
+    secret: 'keyboard cat',
+  })
+);
+
+// Stripe webhook, BEFORE body-parser, because stripe needs the body as stream
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  userController.webhook
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
