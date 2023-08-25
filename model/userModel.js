@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
     ],
     subscription: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     password: {
       type: String,
