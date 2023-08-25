@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const sharp = require('sharp');
 const catchAsync = require('./catchAsync');
-const User = require('../model/userModel');
+const UserModel = require('../model/userModel');
 
 const response = (message, res, statusCode, user) => {
   res.status(statusCode).json({
@@ -10,6 +10,23 @@ const response = (message, res, statusCode, user) => {
     message,
     data: user,
   });
+};
+
+const updateSubscription = async (id) => {
+  try {
+    const user = await UserModel.findByIdAndUpdate(
+      id,
+      { subscription: true },
+      { new: true }
+    );
+    if (user) {
+      await user.save({ validateBeforeSave: false });
+    } else {
+      throw new Error('Inavlid userId');
+    }
+  } catch (error) {
+    return { Error: `${error.message}` };
+  }
 };
 
 const multerStorage = multer.memoryStorage();
@@ -46,7 +63,9 @@ const resizeImages = catchAsync(async (req, res, next) => {
 
   await Promise.all(
     req.files.map(async (file, i) => {
-      const fileName = `image-${Math.round(Math.random() * 1e9)}-${Date.now()}-${i + 1}.jpeg`;
+      const fileName = `image-${Math.round(Math.random() * 1e9)}-${Date.now()}-${
+        i + 1
+      }.jpeg`;
 
       await sharp(file.buffer)
         .resize(500, 500)
@@ -76,4 +95,5 @@ module.exports = {
   uploadOneImage,
   uploadImages,
   resizeImages,
+  updateSubscription,
 };
