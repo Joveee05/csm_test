@@ -13,7 +13,7 @@ const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
-const viewRouter = require('./routes/viewRoutes');
+
 const userController = require('./controllers/userController');
 
 const app = express();
@@ -63,6 +63,13 @@ app.post(
   userController.webhook
 );
 
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome CSM API',
+    Author: 'Brian Etaghene',
+  });
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
@@ -74,7 +81,6 @@ app.use(mongoSanitize());
 
 app.use(xss());
 
-app.use('/', viewRouter);
 app.use('/api/users', userRouter);
 
 app.use(compression());
