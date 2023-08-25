@@ -13,6 +13,7 @@ const compression = require('compression');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
+const viewRouter = require('./routes/viewRoutes');
 const userController = require('./controllers/userController');
 
 const app = express();
@@ -23,8 +24,10 @@ app.options('*', cors());
 
 // view engine setup
 
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(helmet());
 
@@ -71,7 +74,8 @@ app.use(mongoSanitize());
 
 app.use(xss());
 
-app.use('/api/users/', userRouter);
+app.use('/', viewRouter);
+app.use('/api/users', userRouter);
 
 app.use(compression());
 

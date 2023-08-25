@@ -28,7 +28,7 @@ exports.addImage = catchAsync(async (req, res) => {
 });
 
 exports.stripeCheckout = catchAsync(async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.user.id;
   const productId = process.env.STRIPE_PRODUCT_API_ID;
   const session = await stripeSession(productId, userId);
   const url = session.url;
