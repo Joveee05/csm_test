@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
         type: String,
       },
     ],
-    subscription: {
+    subscribed: {
       type: Boolean,
       default: false,
     },
